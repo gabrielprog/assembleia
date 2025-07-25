@@ -7,6 +7,14 @@ import br.com.assembleia.assembleia.adapters.dtos.AgendaResponseDTO;
 import br.com.assembleia.assembleia.adapters.gateways.AgendaGateway;
 import br.com.assembleia.assembleia.infra.db.entities.Agenda;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,6 +25,7 @@ import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
+@Tag(name = "Agendas", description = "Gerenciamento de agendas de votação")
 @RestController
 @RequestMapping("/v1/agendas")
 public class AgendaController {

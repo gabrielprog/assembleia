@@ -9,15 +9,19 @@ import br.com.assembleia.assembleia.adapters.gateways.AgendaGateway;
 import br.com.assembleia.assembleia.adapters.gateways.SessionGateway;
 import br.com.assembleia.assembleia.infra.db.entities.Agenda;
 import br.com.assembleia.assembleia.infra.db.entities.Session;
+import br.com.assembleia.assembleia.infra.messaging.dtos.AgendaCreatedEventDTO;
+import br.com.assembleia.assembleia.infra.messaging.producers.AssembleiaEventProducer;
 
 @Component
 public class AgendaUseCase {
     private final AgendaGateway agendaGateway;
     private final SessionGateway sessionGateway;
+    private final AssembleiaEventProducer eventProducer;
 
-    public AgendaUseCase(AgendaGateway agendaGateway, SessionGateway sessionGateway) {
+    public AgendaUseCase(AgendaGateway agendaGateway, SessionGateway sessionGateway, AssembleiaEventProducer eventProducer) {
         this.agendaGateway = agendaGateway;
         this.sessionGateway = sessionGateway;
+        this.eventProducer = eventProducer;
     }
 
     public void save(Agenda agenda) {
@@ -34,6 +38,14 @@ public class AgendaUseCase {
         }
 
         agendaGateway.save(agenda);
+        
+        AgendaCreatedEventDTO event = AgendaCreatedEventDTO.from(
+            agenda.getId(),
+            agenda.getTitle(),
+            agenda.getDescription(),
+            agenda.getSession().getId()
+        );
+        eventProducer.publishAgendaCreatedEvent(event);
     }
 
     public Agenda createAgenda(String title, String description, UUID sessionId) {

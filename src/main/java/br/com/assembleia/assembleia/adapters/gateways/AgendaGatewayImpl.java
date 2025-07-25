@@ -1,5 +1,6 @@
 package br.com.assembleia.assembleia.adapters.gateways;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,5 +29,17 @@ public class AgendaGatewayImpl implements AgendaGateway {
     @Transactional(propagation=Propagation.REQUIRED, readOnly=true)
     public Optional<Agenda> findById(UUID id) {
         return agendaRepository.findById(id);
+    }
+
+    @Override
+    @Transactional(propagation=Propagation.REQUIRED, readOnly=true)
+    public List<Agenda> findAll() {
+        return agendaRepository.findAll();
+    }
+
+    @Override
+    @Transactional(propagation=Propagation.REQUIRED, readOnly=true)
+    public List<Agenda> findBySessionId(UUID sessionId) {
+        return agendaRepository.findBySessionId(sessionId);
     }
 }

@@ -1,7 +1,7 @@
 package br.com.assembleia.assembleia.application.utils;
 
 /**
- * Utilitário para validação de CPF brasileiro
+ * Utilitário para validação de CPF
  */
 public class CpfValidator {
     

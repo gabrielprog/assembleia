@@ -7,13 +7,17 @@ import org.springframework.stereotype.Component;
 
 import br.com.assembleia.assembleia.adapters.gateways.SessionGateway;
 import br.com.assembleia.assembleia.infra.db.entities.Session;
+import br.com.assembleia.assembleia.infra.messaging.dtos.SessionCreatedEventDTO;
+import br.com.assembleia.assembleia.infra.messaging.producers.AssembleiaEventProducer;
 
 @Component
 public class SessionUseCase {
     private final SessionGateway sessionGateway;
+    private final AssembleiaEventProducer eventProducer;
 
-    public SessionUseCase(SessionGateway sessionGateway) {
+    public SessionUseCase(SessionGateway sessionGateway, AssembleiaEventProducer eventProducer) {
         this.sessionGateway = sessionGateway;
+        this.eventProducer = eventProducer;
     }
 
     public void save(Session session) {
@@ -38,5 +42,12 @@ public class SessionUseCase {
         }
 
         sessionGateway.save(session);
+        
+        SessionCreatedEventDTO event = SessionCreatedEventDTO.from(
+            session.getId(),
+            session.getStartDate(),
+            session.getEndDate()
+        );
+        eventProducer.publishSessionCreatedEvent(event);
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.assembleia.assembleia.adapters.enums.VoteStatus;
 import br.com.assembleia.assembleia.adapters.repositories.VoteRepository;
 import br.com.assembleia.assembleia.infra.db.entities.Vote;
 
@@ -27,5 +28,17 @@ public class VoteGatewayImpl implements VoteGateway {
     @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
     public void save(Vote vote) {
         voteRepository.save(vote);
+    }
+
+    @Override
+    @Transactional(propagation=Propagation.REQUIRED, readOnly=true)
+    public long countByAgendaIdAndVote(UUID agendaId, VoteStatus vote) {
+        return voteRepository.countByAgendaIdAndVote(agendaId, vote);
+    }
+
+    @Override
+    @Transactional(propagation=Propagation.REQUIRED, readOnly=true)
+    public long countByAgendaId(UUID agendaId) {
+        return voteRepository.countByAgendaId(agendaId);
     }
 }

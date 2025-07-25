@@ -1,5 +1,6 @@
 package br.com.assembleia.assembleia.adapters.gateways;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,4 +12,6 @@ import br.com.assembleia.assembleia.infra.db.entities.Session;
 public interface SessionGateway {
     void save(Session session);
     Optional<Session> findById(UUID id);
+    List<Session> findAll();
+    List<Session> findActiveSessions();
 }

@@ -1,5 +1,6 @@
 package br.com.assembleia.assembleia.adapters.gateways;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,4 +12,6 @@ import br.com.assembleia.assembleia.infra.db.entities.Agenda;
 public interface AgendaGateway {
     void save(Agenda agenda);
     Optional<Agenda> findById(UUID id);
+    List<Agenda> findAll();
+    List<Agenda> findBySessionId(UUID sessionId);
 }

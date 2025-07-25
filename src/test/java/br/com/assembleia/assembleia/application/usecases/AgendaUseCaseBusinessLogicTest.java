@@ -4,6 +4,7 @@ import br.com.assembleia.assembleia.adapters.gateways.AgendaGateway;
 import br.com.assembleia.assembleia.adapters.gateways.SessionGateway;
 import br.com.assembleia.assembleia.infra.db.entities.Agenda;
 import br.com.assembleia.assembleia.infra.db.entities.Session;
+import br.com.assembleia.assembleia.infra.messaging.producers.AssembleiaEventProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,14 +22,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("AgendaUseCase Unit Tests")
-class AgendaUseCaseTest {
+@DisplayName("AgendaUseCase Business Logic Tests")
+class AgendaUseCaseBusinessLogicTest {
 
     @Mock
     private AgendaGateway agendaGateway;
 
     @Mock
     private SessionGateway sessionGateway;
+
+    @Mock
+    private AssembleiaEventProducer eventProducer;
 
     @InjectMocks
     private AgendaUseCase agendaUseCase;
@@ -45,109 +49,98 @@ class AgendaUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should save agenda successfully when all conditions are met")
-    void shouldSaveAgendaSuccessfullyWhenAllConditionsAreMet() {
-        // When
-        agendaUseCase.save(validAgenda);
-
-        // Then
-        verify(agendaGateway).save(validAgenda);
-    }
-
-    @Test
-    @DisplayName("Should throw exception when agenda is null")
-    void shouldThrowExceptionWhenAgendaIsNull() {
-        // When & Then
+    @DisplayName("Should validate agenda is not null")
+    void shouldValidateAgendaIsNotNull() {
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> agendaUseCase.save(null)
         );
-
+        
         assertEquals("Invalid agenda: cannot be null.", exception.getMessage());
         verify(agendaGateway, never()).save(any());
     }
 
     @Test
-    @DisplayName("Should throw exception when title is null")
-    void shouldThrowExceptionWhenTitleIsNull() {
-        // Given
+    @DisplayName("Should validate agenda title is not null")
+    void shouldValidateAgendaTitleIsNotNull() {
         Agenda agendaWithNullTitle = new Agenda(null, "Description", session);
-
-        // When & Then
+        
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> agendaUseCase.save(agendaWithNullTitle)
         );
-
+        
         assertEquals("Agenda title is required.", exception.getMessage());
         verify(agendaGateway, never()).save(any());
     }
 
     @Test
-    @DisplayName("Should throw exception when title is empty")
-    void shouldThrowExceptionWhenTitleIsEmpty() {
-        // Given
-        Agenda agendaWithEmptyTitle = new Agenda("", "Description", session);
-
-        // When & Then
+    @DisplayName("Should validate agenda title is not empty")
+    void shouldValidateAgendaTitleIsNotEmpty() {
+        Agenda agendaWithEmptyTitle = new Agenda("   ", "Description", session);
+        
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> agendaUseCase.save(agendaWithEmptyTitle)
         );
-
+        
         assertEquals("Agenda title is required.", exception.getMessage());
         verify(agendaGateway, never()).save(any());
     }
 
     @Test
-    @DisplayName("Should throw exception when title is only whitespace")
-    void shouldThrowExceptionWhenTitleIsOnlyWhitespace() {
-        // Given
-        Agenda agendaWithWhitespaceTitle = new Agenda("   ", "Description", session);
-
-        // When & Then
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> agendaUseCase.save(agendaWithWhitespaceTitle)
-        );
-
-        assertEquals("Agenda title is required.", exception.getMessage());
-        verify(agendaGateway, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Should throw exception when session is null")
-    void shouldThrowExceptionWhenSessionIsNull() {
-        // Given
+    @DisplayName("Should validate session is not null")
+    void shouldValidateSessionIsNotNull() {
         Agenda agendaWithNullSession = new Agenda("Title", "Description", null);
-
-        // When & Then
+        
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> agendaUseCase.save(agendaWithNullSession)
         );
-
+        
         assertEquals("Session is required for the agenda.", exception.getMessage());
         verify(agendaGateway, never()).save(any());
     }
 
     @Test
-    @DisplayName("Should create agenda successfully when session exists")
-    void shouldCreateAgendaSuccessfullyWhenSessionExists() {
-        // Given
+    @DisplayName("Should save valid agenda successfully")
+    void shouldSaveValidAgendaSuccessfully() {
+        // Act
+        agendaUseCase.save(validAgenda);
+        
+        // Assert
+        verify(agendaGateway).save(validAgenda);
+        verify(eventProducer).publishAgendaCreatedEvent(any());
+    }
+
+    @Test
+    @DisplayName("Should accept agenda with null description")
+    void shouldAcceptAgendaWithNullDescription() {
+        Agenda agendaWithNullDescription = new Agenda("Title", null, session);
+        
+        // Should not throw exception
+        assertDoesNotThrow(() -> agendaUseCase.save(agendaWithNullDescription));
+        
+        verify(agendaGateway).save(agendaWithNullDescription);
+    }
+
+    @Test
+    @DisplayName("Should create agenda when session exists")
+    void shouldCreateAgendaWhenSessionExists() {
+        // Arrange
         String title = "New Agenda";
         String description = "New Description";
         when(sessionGateway.findById(sessionId)).thenReturn(Optional.of(session));
-
-        // When
+        
+        // Act
         Agenda result = agendaUseCase.createAgenda(title, description, sessionId);
-
-        // Then
+        
+        // Assert
         assertNotNull(result);
         assertEquals(title, result.getTitle());
         assertEquals(description, result.getDescription());
         assertEquals(session, result.getSession());
-
+        
         verify(sessionGateway).findById(sessionId);
         verify(agendaGateway).save(any(Agenda.class));
     }
@@ -155,44 +148,30 @@ class AgendaUseCaseTest {
     @Test
     @DisplayName("Should throw exception when sessionId is null")
     void shouldThrowExceptionWhenSessionIdIsNull() {
-        // When & Then
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> agendaUseCase.createAgenda("Title", "Description", null)
         );
-
+        
         assertEquals("Session ID is required.", exception.getMessage());
         verify(sessionGateway, never()).findById(any());
         verify(agendaGateway, never()).save(any());
     }
 
     @Test
-    @DisplayName("Should throw exception when session does not exist")
-    void shouldThrowExceptionWhenSessionDoesNotExist() {
-        // Given
+    @DisplayName("Should throw exception when session not found")
+    void shouldThrowExceptionWhenSessionNotFound() {
+        // Arrange
         when(sessionGateway.findById(sessionId)).thenReturn(Optional.empty());
-
-        // When & Then
+        
+        // Act & Assert
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> agendaUseCase.createAgenda("Title", "Description", sessionId)
         );
-
+        
         assertEquals("Session not found with the provided ID.", exception.getMessage());
         verify(sessionGateway).findById(sessionId);
         verify(agendaGateway, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Should accept agenda with null description")
-    void shouldAcceptAgendaWithNullDescription() {
-        // Given
-        Agenda agendaWithNullDescription = new Agenda("Title", null, session);
-
-        // When
-        agendaUseCase.save(agendaWithNullDescription);
-
-        // Then
-        verify(agendaGateway).save(agendaWithNullDescription);
     }
 }

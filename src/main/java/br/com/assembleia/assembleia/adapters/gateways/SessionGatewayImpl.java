@@ -1,5 +1,7 @@
 package br.com.assembleia.assembleia.adapters.gateways;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,7 +21,8 @@ public class SessionGatewayImpl implements SessionGateway {
         this.sessionRepository = sessionRepository;
     }
     
-    @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
+    @Override
+    @Transactional(propagation=Propagation.REQUIRED, readOnly=true)
     public Optional<Session> findById(UUID id) {
         return sessionRepository.findById(id);
     }
@@ -28,5 +31,18 @@ public class SessionGatewayImpl implements SessionGateway {
     @Transactional(propagation=Propagation.REQUIRES_NEW, readOnly=false)
     public void save(Session session) {
         sessionRepository.save(session);
+    }
+
+    @Override
+    @Transactional(propagation=Propagation.REQUIRED, readOnly=true)
+    public List<Session> findAll() {
+        return sessionRepository.findAll();
+    }
+
+    @Override
+    @Transactional(propagation=Propagation.REQUIRED, readOnly=true)
+    public List<Session> findActiveSessions() {
+        LocalDateTime now = LocalDateTime.now();
+        return sessionRepository.findActiveSessions(now);
     }
 }
