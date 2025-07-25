@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,6 +45,7 @@ public class AgendaController {
             logger.info("Agenda created successfully: {}", agenda);
             return ResponseEntity
                 .status(HttpStatus.CREATED)
+                .header("X-Agenda-ID", agenda.getId().toString())
                 .body(ResponseDTO.of(HttpStatus.CREATED.value(), "Agenda created successfully"));
         } catch (IllegalArgumentException e) {
             logger.error("Validation error creating agenda: {}", e.getMessage());

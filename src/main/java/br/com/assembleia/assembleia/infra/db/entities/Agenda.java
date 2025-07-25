@@ -21,9 +21,10 @@ public class Agenda {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(name = "titulo", nullable = false)
     private String title;
 
+    @Column(name = "descricao")
     private String description;
 
     @ManyToOne

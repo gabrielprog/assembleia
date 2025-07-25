@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,8 +40,14 @@ public class SessionController {
             logger.info("Creating session: {}", session);
             sessionUseCase.save(session);
             return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(ResponseDTO.of(HttpStatus.CREATED.value(), "Session created successfully"));
+                .status(HttpStatus.CREATED)
+                .header("X-Session-ID", session.getId().toString())
+                .body(ResponseDTO.of(HttpStatus.CREATED.value(), "Session created successfully"));
+        } catch (IllegalArgumentException e) {
+            logger.error("Validation error creating session: {}", e.getMessage());
+            return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ResponseDTO.of(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
         } catch (Exception e) {
             logger.error("Error creating session: {}", e.getMessage());
             return ResponseEntity

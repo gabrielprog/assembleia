@@ -27,6 +27,10 @@ http://localhost:8080/api
 }
 ```
 
+**Headers:**
+- `Location: /v1/sessions/{id}`
+- `X-Session-ID: {sessionId}`
+
 ### Get Session by ID
 **GET** `/v1/sessions/{id}`
 
@@ -64,6 +68,10 @@ http://localhost:8080/api
   "timestamp": 1643097600000
 }
 ```
+
+**Headers:**
+- `Location: /v1/agendas/{id}`
+- `X-Agenda-ID: {agendaId}`
 
 ### Get Agenda by ID
 **GET** `/v1/agendas/{id}`
@@ -105,6 +113,39 @@ http://localhost:8080/api
 }
 ```
 
+**Headers:**
+- `Location: /v1/votes/{id}`
+- `X-Vote-ID: {voteId}`
+
+### Error Responses
+
+**403 Forbidden - Session Ended:**
+```json
+{
+  "status": 403,
+  "message": "Voting session has ended",
+  "timestamp": 1643097600000
+}
+```
+
+**403 Forbidden - Session Not Started:**
+```json
+{
+  "status": 403,
+  "message": "Voting session has not started yet",
+  "timestamp": 1643097600000
+}
+```
+
+**409 Conflict - Already Voted:**
+```json
+{
+  "status": 409,
+  "message": "Participant has already voted on this agenda",
+  "timestamp": 1643097600000
+}
+```
+
 ### Check if CPF has already voted
 **GET** `/v1/votes/check/{agendaId}/{cpf}`
 
@@ -134,6 +175,7 @@ or
 - **200 OK** - Successful query
 - **201 Created** - Resource created successfully
 - **400 Bad Request** - Invalid data or incorrect parameters
+- **403 Forbidden** - Voting session has ended or not started yet
 - **404 Not Found** - Resource not found
 - **409 Conflict** - Conflict (e.g., CPF has already voted on agenda)
 - **500 Internal Server Error** - Internal server error
@@ -148,6 +190,9 @@ or
    - CPF can vote only once per agenda
    - Valid values: YES or NO
    - Agenda must exist to register vote
+   - **Voting is only allowed during active session period (between startDate and endDate)**
+   - Session must not have ended based on current machine time
+   - Session must have already started based on current machine time
 
 ---
 

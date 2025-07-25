@@ -23,7 +23,7 @@ public class Vote {
     private String cpf;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "voto", nullable = false)
     private VoteStatus vote;
 
     @Column(name = "data_hora", nullable = false)

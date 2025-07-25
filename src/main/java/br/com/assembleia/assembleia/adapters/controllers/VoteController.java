@@ -5,6 +5,7 @@ import br.com.assembleia.assembleia.adapters.dtos.ResponseDTO;
 import br.com.assembleia.assembleia.adapters.dtos.VoteRequestDTO;
 import br.com.assembleia.assembleia.adapters.gateways.AgendaGateway;
 import br.com.assembleia.assembleia.infra.db.entities.Agenda;
+import br.com.assembleia.assembleia.infra.db.entities.Vote;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
@@ -41,9 +44,11 @@ public class VoteController {
                     .body(ResponseDTO.of(HttpStatus.NOT_FOUND.value(), "Agenda not found"));
             }
             
-            voteUseCase.registerVote(
+            Agenda agenda = agendaOpt.get();
+            
+            Vote registeredVote = voteUseCase.registerVote(
                 voteRequestDTO.agendaId(),
-                agendaOpt.get(),
+                agenda,
                 voteRequestDTO.cpf(),
                 voteRequestDTO.vote()
             );
@@ -51,6 +56,7 @@ public class VoteController {
             logger.info("Vote registered successfully for CPF: {}", voteRequestDTO.cpf());
             return ResponseEntity
                 .status(HttpStatus.CREATED)
+                .header("X-Vote-ID", registeredVote.getId().toString())
                 .body(ResponseDTO.of(HttpStatus.CREATED.value(), "Vote registered successfully"));
         } catch (IllegalArgumentException e) {
             logger.error("Validation error registering vote: {}", e.getMessage());
