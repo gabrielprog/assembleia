@@ -36,7 +36,7 @@ Sistema para gerenciamento de sessões de votação em assembleias, desenvolvido
 
 ```bash
 # Clone o repositório
-git clone <url-do-repositorio>
+git clone https://github.com/gabrielprog/assembleia.git
 cd assembleia
 
 # Execute os serviços
