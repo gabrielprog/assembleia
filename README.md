@@ -27,8 +27,8 @@ Sistema para gerenciamento de sessões de votação em assembleias, desenvolvido
 - Java 21 ou superior
 - Maven 3.8+
 - Docker e Docker Compose
-- PostgreSQL (se não usar Docker)
-- Apache Kafka (se não usar Docker)
+- PostgreSQL 
+- Apache Kafka 
 
 ## Configuração e Execução
 

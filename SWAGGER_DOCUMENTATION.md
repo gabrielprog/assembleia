@@ -2,20 +2,20 @@
 
 ## Swagger/OpenAPI 3 Configuration
 
-### 🚀 Acesso ao Swagger UI
+### Acesso ao Swagger UI
 
 Após iniciar a aplicação, você pode acessar a documentação interativa do Swagger em:
 
 - **Desenvolvimento**: [http://localhost:8080/api/swagger-ui.html](http://localhost:8080/api/swagger-ui.html)
 - **Produção**: [https://api.assembleia.com/api/swagger-ui.html](https://api.assembleia.com/api/swagger-ui.html)
 
-### 📚 API Docs (JSON)
+### API Docs (JSON)
 
 Para acessar a especificação OpenAPI 3 em formato JSON:
 
 - **API Docs**: [http://localhost:8080/api/api-docs](http://localhost:8080/api/api-docs)
 
-### 🏷️ Endpoints Documentados
+### Endpoints Documentados
 
 #### 1. **Sessões** (`/v1/sessions`)
 - **POST** `/v1/sessions` - Criar nova sessão de votação
@@ -30,9 +30,9 @@ Para acessar a especificação OpenAPI 3 em formato JSON:
 - **GET** `/v1/votes/check/{agendaId}/{cpf}` - Verificar se CPF já votou
 - **GET** `/v1/votes/results/{agendaId}` - Obter resultados da votação
 
-### 🔧 Funcionalidades do Swagger
+### Funcionalidades do Swagger
 
-#### ✅ **Features Implementadas:**
+#### Features Implementadas:
 
 1. **Documentação Completa**:
    - Descrições detalhadas para cada endpoint
@@ -54,7 +54,7 @@ Para acessar a especificação OpenAPI 3 em formato JSON:
    - Autorização configurável
    - Download da especificação OpenAPI
 
-### 📝 Exemplos de Uso
+### Exemplos de Uso
 
 #### Criar Sessão
 ```json

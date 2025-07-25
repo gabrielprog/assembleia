@@ -1,8 +1,8 @@
-# 🔄 Kafka Configuration - Sistema de Assembleia
+# Kafka Configuration - Sistema de Assembleia
 
 Este documento descreve a configuração e uso do Apache Kafka no sistema de votação de assembleias.
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 ### Componentes do Kafka
 - **Zookeeper**: Coordenação e configuração do cluster Kafka
@@ -15,7 +15,7 @@ Este documento descreve a configuração e uso do Apache Kafka no sistema de vot
 - `vote-events`: Eventos relacionados a votos registrados
 - `voting-results`: Resultados e estatísticas de votação
 
-## 🚀 Como Executar
+## Como Executar
 
 ### 1. Subir a Infraestrutura Completa
 ```bash
@@ -37,7 +37,7 @@ docker-compose logs -f kafka
 - **Kafka UI**: http://localhost:8081
 - **PostgreSQL**: localhost:5432
 
-## 📨 Eventos Publicados
+## Eventos Publicados
 
 ### 1. SessionCreatedEvent
 **Tópico**: `session-events`
@@ -77,7 +77,7 @@ docker-compose logs -f kafka
 }
 ```
 
-## 🔧 Configuração
+## Configuração
 
 ### Variáveis de Ambiente
 ```properties
@@ -98,7 +98,7 @@ spring.kafka.bootstrap-servers=${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
 - **Key Serializer**: `StringSerializer`
 - **Value Serializer**: `JsonSerializer`
 
-## 🔄 Fluxo de Eventos
+## Fluxo de Eventos
 
 ### 1. Criação de Sessão
 ```
@@ -130,7 +130,7 @@ VoteController.create()
     → VoteEventConsumer.consumeVoteRegisteredEvent()
 ```
 
-## 🛠️ Monitoramento
+## Monitoramento
 
 ### Via Kafka UI (http://localhost:8081)
 - Visualizar tópicos e mensagens
@@ -149,7 +149,7 @@ docker-compose logs -f app | grep "Recebido evento"
 docker-compose logs -f app | grep "ERROR"
 ```
 
-## 🧪 Testando os Eventos
+## Testando os Eventos
 
 ### 1. Criar Sessão e Verificar Evento
 ```bash
@@ -192,7 +192,7 @@ curl -X POST http://localhost:8080/api/v1/votes \
 # Verificar no Kafka UI: Topic vote-events
 ```
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Problemas Comuns
 
@@ -243,7 +243,7 @@ kafka-consumer-groups --bootstrap-server localhost:9092 \
 docker-compose start app
 ```
 
-## 📊 Casos de Uso dos Eventos
+## Casos de Uso dos Eventos
 
 ### 1. Auditoria
 - Todos os eventos são registrados para auditoria completa
@@ -263,7 +263,7 @@ docker-compose start app
 - Dashboards atualizados automaticamente
 - Detecção de padrões de votação
 
-## 🔄 Próximos Passos
+## Próximos Passos
 
 1. **Implementar Dead Letter Queue (DLQ)** para mensagens com falha
 2. **Adicionar métricas** de performance dos consumers
@@ -271,7 +271,7 @@ docker-compose start app
 4. **Adicionar compactação** de tópicos para otimização
 5. **Implementar SAGA pattern** para operações distribuídas
 
-## 📚 Referências
+## Referências
 
 - [Apache Kafka Documentation](https://kafka.apache.org/documentation/)
 - [Spring Kafka Reference](https://docs.spring.io/spring-kafka/docs/current/reference/html/)
