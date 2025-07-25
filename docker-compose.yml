@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: assembleia-app
+    container_name: assembleia-app
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=assembleia_db
+      - DB_USER=admin
+      - DB_PASSWORD=secret
+      - DB_URL_JDBC=jdbc:postgresql://postgres:5432/assembleia_db
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - assembleia-network
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=assembleia_db
+    ports:
+      - "5432:5432"
+    networks:
+      - assembleia-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+networks:
+  assembleia-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
