@@ -142,28 +142,9 @@ src/
 └── test/                          # Testes unitários e integração
 ```
 
-## Configurações de Ambiente
-
-### Desenvolvimento (application-dev.properties)
-- Banco H2 em memória para desenvolvimento rápido
-- Logs em nível DEBUG
-- Kafka desabilitado
-
-### Homologação (application-homolog.properties)
-- PostgreSQL containerizado
-- Kafka ativo
-- Logs em nível INFO
-
-### Produção (application-prod.properties)
-- PostgreSQL gerenciado
-- Kafka cluster
-- Logs em nível WARN
-- Configurações otimizadas para performance
-
 ## Validações e Regras de Negócio
 
 ### Sessões
-- Data de início deve ser futura
 - Data de fim deve ser posterior à data de início
 - Sessões não podem se sobrepor
 
@@ -177,25 +158,6 @@ src/
 - Cada CPF pode votar apenas uma vez por agenda
 - Votos só são aceitos durante o período da sessão
 - Valores aceitos: YES ou NO
-
-## Monitoramento e Observabilidade
-
-A aplicação inclui:
-
-- **Actuator**: Endpoints de health check e métricas
-- **Logs estruturados**: Formato JSON para facilitar análise
-- **Kafka Events**: Eventos assíncronos para auditoria
-- **Validation**: Validação robusta de entrada
-
-### Health Check
-
-```bash
-# Verificar saúde da aplicação
-curl http://localhost:8080/actuator/health
-
-# Métricas da aplicação
-curl http://localhost:8080/actuator/metrics
-```
 
 ## Desenvolvimento
 
@@ -245,32 +207,7 @@ docker run -p 8080:8080 assembleia-api
 ### Problema: Testes falham
 **Solução**: Execute `./mvnw clean test` para garantir que não há conflitos de cache
 
-## Contribuição
-
-1. Faça fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
 ## Licença
 
 Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
-## Suporte
-
-Para suporte técnico, entre em contato:
-
-- **Email**: dev@assembleia.com
-- **Documentação**: Acesse o Swagger UI em produção
-- **Issues**: Use o sistema de issues do repositório
-
-## Changelog
-
-### v1.0.0
-- Implementação inicial do sistema
-- CRUD de sessões, agendas e votos
-- Sistema de configuração mobile
-- Documentação Swagger
-- Integração com Kafka
-- Suporte a múltiplos ambientes
