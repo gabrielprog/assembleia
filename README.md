@@ -42,7 +42,7 @@ cd assembleia
 # Execute os serviços
 docker-compose up -d
 
-# A aplicação estará disponível em http://localhost:8080
+# A aplicação estará disponível em http://localhost:8080/api/
 ```
 
 ### 2. Executar Localmente
