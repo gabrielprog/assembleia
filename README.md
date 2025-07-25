@@ -1,6 +1,6 @@
 # Sistema de Assembleias - API REST
 
-Sistema para gerenciamento de sessões de votação em assembleias, desenvolvido com Spring Boot e arquitetura hexagonal.
+Sistema para gerenciamento de sessões de votação em assembleias, desenvolvido com Spring Boot e arquitetura limpa.
 
 ## Funcionalidades
 
