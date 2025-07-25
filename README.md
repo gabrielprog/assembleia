@@ -96,7 +96,6 @@ A aplicação suporta diferentes perfis de configuração:
 Após iniciar a aplicação, acesse:
 
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **OpenAPI JSON**: http://localhost:8080/v3/api-docs
 
 ### Endpoints Principais
 
