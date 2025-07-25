@@ -1,4 +1,4 @@
-package br.com.assembleia.assembleia.external.db.entity;
+package br.com.assembleia.assembleia.external.db.entities;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;

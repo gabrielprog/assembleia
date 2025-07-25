@@ -1,4 +1,4 @@
-package br.com.assembleia.assembleia.adapters.config;
+package br.com.assembleia.assembleia.adapters.configs;
 
 import org.apache.catalina.filters.RateLimitFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

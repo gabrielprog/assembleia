@@ -1,4 +1,4 @@
-package br.com.assembleia.assembleia.adapters.dto;
+package br.com.assembleia.assembleia.adapters.dtos;
 
 public record ErrorResponseDTO(int status, String message, long timestamp) {
     public static ErrorResponseDTO of(int status, String message) {

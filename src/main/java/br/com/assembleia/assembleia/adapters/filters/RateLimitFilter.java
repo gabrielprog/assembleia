@@ -1,11 +1,11 @@
-package br.com.assembleia.assembleia.adapters.filter;
+package br.com.assembleia.assembleia.adapters.filters;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import br.com.assembleia.assembleia.adapters.dto.ErrorResponseDTO;
+import br.com.assembleia.assembleia.adapters.dtos.ErrorResponseDTO;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
