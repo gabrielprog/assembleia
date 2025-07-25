@@ -95,26 +95,26 @@ A aplicação suporta diferentes perfis de configuração:
 
 Após iniciar a aplicação, acesse:
 
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **Swagger UI**: http://localhost:8080/api/swagger-ui.html
 
 ### Endpoints Principais
 
 #### Sessões
-- `POST /v1/sessions` - Criar nova sessão
-- `GET /v1/sessions/{id}` - Buscar sessão por ID
+- `POST /api/v1/sessions` - Criar nova sessão
+- `GET /api/v1/sessions/{id}` - Buscar sessão por ID
 
 #### Agendas
-- `POST /v1/agendas` - Criar nova agenda
-- `GET /v1/agendas/{id}` - Buscar agenda por ID
+- `POST /api/v1/agendas` - Criar nova agenda
+- `GET /api/v1/agendas/{id}` - Buscar agenda por ID
 
 #### Votos
-- `POST /v1/votes` - Registrar voto
-- `GET /v1/votes/check/{agendaId}/{cpf}` - Verificar se CPF já votou
-- `GET /v1/votes/results/{agendaId}` - Obter resultados da votação
+- `POST /api/v1/votes` - Registrar voto
+- `GET /api/v1/votes/check/{agendaId}/{cpf}` - Verificar se CPF já votou
+- `GET /api/v1/votes/results/{agendaId}` - Obter resultados da votação
 
 #### Configuração Mobile
-- `GET /v1/mobile-config` - Obter configurações para aplicação mobile
-- `GET /v1/mobile-config/dynamic-data` - Obter dados dinâmicos para formulários
+- `GET /api/v1/mobile-config` - Obter configurações para aplicação mobile
+- `GET /api/v1/mobile-config/dynamic-data` - Obter dados dinâmicos para formulários
 
 ## Estrutura do Projeto
 
