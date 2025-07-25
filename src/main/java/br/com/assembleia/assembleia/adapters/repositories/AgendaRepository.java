@@ -1,7 +1,9 @@
 package br.com.assembleia.assembleia.adapters.repositories;
 
-import br.com.assembleia.assembleia.external.db.entities.Pauta;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import br.com.assembleia.assembleia.infra.db.entities.Agenda;
+
 import java.util.UUID;
 
-public interface PautaRepository extends JpaRepository<Pauta, UUID> {}
+public interface AgendaRepository extends JpaRepository<Agenda, UUID> {}

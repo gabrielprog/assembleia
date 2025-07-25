@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import br.com.assembleia.assembleia.adapters.dtos.ErrorResponseDTO;
+import br.com.assembleia.assembleia.adapters.dtos.ResponseDTO;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -55,7 +55,7 @@ public class RateLimitFilter implements Filter {
             httpResponse.setHeader("Content-Type", "application/json");
             httpResponse.setContentType("application/json");
             httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            httpResponse.getWriter().write(new ObjectMapper().writeValueAsString(new ErrorResponseDTO(
+            httpResponse.getWriter().write(new ObjectMapper().writeValueAsString(new ResponseDTO(
                 HttpStatus.TOO_MANY_REQUESTS.value(),
                 "Rate limit exceeded",
                 System.currentTimeMillis()

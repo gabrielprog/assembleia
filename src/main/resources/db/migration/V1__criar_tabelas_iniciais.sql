@@ -17,10 +17,9 @@ CREATE TABLE IF NOT EXISTS votacao.pautas (
 CREATE TABLE IF NOT EXISTS votacao.votos (
     id UUID PRIMARY KEY,
     pauta_id UUID NOT NULL,
-    participante_id VARCHAR(100) NOT NULL,
     cpf VARCHAR(11) NOT NULL,
     voto VARCHAR(3) NOT NULL CHECK (voto IN ('SIM', 'NAO')),
     data_hora TIMESTAMP NOT NULL,
     CONSTRAINT fk_pauta FOREIGN KEY (pauta_id) REFERENCES votacao.pautas(id),
-    CONSTRAINT un_participante_pauta UNIQUE (pauta_id, participante_id)
+    CONSTRAINT un_participante_pauta UNIQUE (pauta_id, cpf)
 );

@@ -1,0 +1,1 @@
+ALTER TABLE votacao.sessoes ADD COLUMN IF NOT EXISTS version BIGINT DEFAULT 0;
