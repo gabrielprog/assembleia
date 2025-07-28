@@ -70,7 +70,7 @@ Certifique-se de ter Apache Kafka rodando localmente na porta 9092.
 ./mvnw clean compile
 
 # Executar os testes
-./mvnw test
+./mvnw test -Dspring.profiles.active=test
 
 # Executar a aplicação
 ./mvnw spring-boot:run
