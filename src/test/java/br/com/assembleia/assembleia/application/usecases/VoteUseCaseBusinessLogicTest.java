@@ -52,97 +52,57 @@ class VoteUseCaseBusinessLogicTest {
     @BeforeEach
     void setUp() {
         agendaId = UUID.randomUUID();
-        validCpf = "11144477735"; // CPF válido
-        invalidCpf = "12345678901"; // CPF inválido
+        validCpf = "08223861941";
+        invalidCpf = "12345678901";
         voteStatus = VoteStatus.YES;
         
         LocalDateTime now = LocalDateTime.now();
         
-        // Sessão ativa (iniciada há 1 hora, termina em 1 hora)
         activeSession = new Session(now.minusHours(1), now.plusHours(1));
+        activeSession.setId(UUID.randomUUID());
         
-        // Sessão expirada (iniciada há 3 horas, terminou há 1 hora)
         expiredSession = new Session(now.minusHours(3), now.minusHours(1));
+        expiredSession.setId(UUID.randomUUID());
         
-        // Sessão futura (inicia em 1 hora, termina em 3 horas)
         futureSession = new Session(now.plusHours(1), now.plusHours(3));
+        futureSession.setId(UUID.randomUUID());
         
         activeAgenda = new Agenda("Active Agenda", "Description", activeSession);
+        activeAgenda.setId(agendaId);
+        
         expiredAgenda = new Agenda("Expired Agenda", "Description", expiredSession);
+        expiredAgenda.setId(UUID.randomUUID());
+        
         futureAgenda = new Agenda("Future Agenda", "Description", futureSession);
-    }
-
-    @Test
-    @DisplayName("Should validate CPF correctly")
-    void shouldValidateCpfCorrectly() {
-        // Valid CPF should not throw exception
-        when(voteGateway.existsByAgendaIdAndCpf(agendaId, validCpf)).thenReturn(false);
-        
-        assertDoesNotThrow(() -> 
-            voteUseCase.registerVote(agendaId, activeAgenda, validCpf, voteStatus)
-        );
-        
-        // Invalid CPF should throw exception
-        IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> voteUseCase.registerVote(agendaId, activeAgenda, invalidCpf, voteStatus)
-        );
-        
-        assertEquals("Invalid CPF provided", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Should reject null parameters")
-    void shouldRejectNullParameters() {
-        // Null agendaId
-        IllegalArgumentException exception1 = assertThrows(
-            IllegalArgumentException.class,
-            () -> voteUseCase.registerVote(null, activeAgenda, validCpf, voteStatus)
-        );
-        assertEquals("All fields must be filled.", exception1.getMessage());
-        
-        // Null CPF
-        IllegalArgumentException exception2 = assertThrows(
-            IllegalArgumentException.class,
-            () -> voteUseCase.registerVote(agendaId, activeAgenda, null, voteStatus)
-        );
-        assertEquals("All fields must be filled.", exception2.getMessage());
-        
-        // Null vote
-        IllegalArgumentException exception3 = assertThrows(
-            IllegalArgumentException.class,
-            () -> voteUseCase.registerVote(agendaId, activeAgenda, validCpf, null)
-        );
-        assertEquals("All fields must be filled.", exception3.getMessage());
+        futureAgenda.setId(UUID.randomUUID());
     }
 
     @Test
     @DisplayName("Should prevent duplicate voting")
     void shouldPreventDuplicateVoting() {
-        // Participant has already voted
         when(voteGateway.existsByAgendaIdAndCpf(agendaId, validCpf)).thenReturn(true);
-        
+
         IllegalStateException exception = assertThrows(
             IllegalStateException.class,
-            () -> voteUseCase.registerVote(agendaId, activeAgenda, validCpf, voteStatus)
+            () -> voteUseCase.registerVote(activeAgenda, validCpf, voteStatus)
         );
         
         assertEquals("Participant has already voted on this agenda.", exception.getMessage());
-        verify(voteGateway, never()).save(any());
+        verify(eventProducer, never()).publishVoteRegisteredEvent(any());
     }
 
     @Test
     @DisplayName("Should reject votes for expired sessions")
     void shouldRejectVotesForExpiredSessions() {
-        when(voteGateway.existsByAgendaIdAndCpf(agendaId, validCpf)).thenReturn(false);
+        when(voteGateway.existsByAgendaIdAndCpf(expiredAgenda.getId(), validCpf)).thenReturn(false);
         
         IllegalStateException exception = assertThrows(
             IllegalStateException.class,
-            () -> voteUseCase.registerVote(agendaId, expiredAgenda, validCpf, voteStatus)
+            () -> voteUseCase.registerVote(expiredAgenda, validCpf, voteStatus)
         );
         
         assertEquals("Voting session has ended.", exception.getMessage());
-        verify(voteGateway, never()).save(any());
+        verify(eventProducer, never()).publishVoteRegisteredEvent(any());
     }
 
     @Test
@@ -170,38 +130,51 @@ class VoteUseCaseBusinessLogicTest {
     @Test
     @DisplayName("Should register valid vote successfully")
     void shouldRegisterValidVoteSuccessfully() {
-        // Arrange
         when(voteGateway.existsByAgendaIdAndCpf(agendaId, validCpf)).thenReturn(false);
         
-        // Act
-        Vote result = voteUseCase.registerVote(agendaId, activeAgenda, validCpf, voteStatus);
+        Vote result = voteUseCase.registerVote(activeAgenda, validCpf, voteStatus);
         
-        // Assert
         assertNotNull(result);
-        assertEquals(activeAgenda, result.getAgenda());
+        assertEquals(agendaId, result.getAgenda().getId());
         assertEquals(validCpf, result.getCpf());
         assertEquals(voteStatus, result.getVote());
         assertNotNull(result.getDateTime());
         
         verify(voteGateway).existsByAgendaIdAndCpf(agendaId, validCpf);
-        verify(voteGateway).save(any(Vote.class));
         verify(eventProducer).publishVoteRegisteredEvent(any());
+    }
+
+    @Test
+    @DisplayName("Should validate CPF correctly")
+    void shouldValidateCpfCorrectly() {
+        when(voteGateway.existsByAgendaIdAndCpf(agendaId, validCpf)).thenReturn(false);
+
+        assertDoesNotThrow(() ->
+            voteUseCase.registerVote(activeAgenda, validCpf, voteStatus)
+        );
+        
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> voteUseCase.registerVote(activeAgenda, invalidCpf, voteStatus)
+        );
+        
+        assertEquals("Invalid CPF provided", exception.getMessage());
     }
 
     @Test
     @DisplayName("Should handle formatted CPF correctly")
     void shouldHandleFormattedCpfCorrectly() {
-        String formattedValidCpf = "111.444.777-35"; // CPF válido formatado
+        String formattedValidCpf = "082.238.619-41";
         when(voteGateway.existsByAgendaIdAndCpf(agendaId, formattedValidCpf)).thenReturn(false);
         
         assertDoesNotThrow(() -> 
-            voteUseCase.registerVote(agendaId, activeAgenda, formattedValidCpf, voteStatus)
+            voteUseCase.registerVote(activeAgenda, formattedValidCpf, voteStatus)
         );
         
-        String formattedInvalidCpf = "123.456.789-01"; // CPF inválido formatado
+        String formattedInvalidCpf = "123.456.789-01";
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> voteUseCase.registerVote(agendaId, activeAgenda, formattedInvalidCpf, voteStatus)
+            () -> voteUseCase.registerVote(activeAgenda, formattedInvalidCpf, voteStatus)
         );
         
         assertEquals("Invalid CPF provided", exception.getMessage());

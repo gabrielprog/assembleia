@@ -1,7 +1,12 @@
 package br.com.assembleia.assembleia.infra.messaging.consumers;
 
+import br.com.assembleia.assembleia.adapters.gateways.AgendaGateway;
+import br.com.assembleia.assembleia.adapters.gateways.VoteGateway;
+import br.com.assembleia.assembleia.infra.db.entities.Agenda;
+import br.com.assembleia.assembleia.infra.db.entities.Vote;
 import br.com.assembleia.assembleia.infra.messaging.config.KafkaTopicConfig;
 import br.com.assembleia.assembleia.infra.messaging.dtos.VoteRegisteredEventDTO;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,6 +20,13 @@ import org.springframework.stereotype.Service;
 public class VoteEventConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(VoteEventConsumer.class);
+    private final VoteGateway voteGateway;
+    private final AgendaGateway agendaGateway;
+
+    public VoteEventConsumer(VoteGateway voteGateway, AgendaGateway agendaGateway) {
+        this.voteGateway = voteGateway;
+        this.agendaGateway = agendaGateway;
+    }
 
     @KafkaListener(topics = KafkaTopicConfig.VOTE_EVENTS_TOPIC, groupId = "assembleia-vote-group")
     public void consumeVoteRegisteredEvent(
@@ -25,36 +37,29 @@ public class VoteEventConsumer {
             Acknowledgment acknowledgment) {
 
         try {
-            logger.info("Recebido evento de voto registrado: {} para agenda {} da partição {} offset {}", 
-                       event.voteId(), event.agendaId(), partition, offset);
+            logger.info("Recebido evento de voto registrado: {} da partição {} offset {}", 
+                   event.agendaId(), partition, offset);
 
-            processVoteRegisteredEvent(event);
+            Agenda agenda = agendaGateway.findById(event.agendaId())
+                .orElseThrow(() -> new IllegalArgumentException("Agenda não encontrada: " + event.agendaId()));
 
-            acknowledgment.acknowledge();
+            if (voteGateway.existsByAgendaIdAndCpf(event.agendaId(), event.cpf())) {
+                logger.warn("Voto duplicado ignorado para CPF {} na agenda {}", event.cpf(), event.agendaId());
+                acknowledgment.acknowledge();
+                return;
+            }
+
+            Vote vote = new Vote(agenda, event.cpf(), event.vote(), event.votedAt());
             
-            logger.info("Evento de voto processado com sucesso: {}", event.voteId());
+            voteGateway.save(vote);
+            
+            acknowledgment.acknowledge();
+
+            logger.info("Voto registrado com sucesso para agenda {}", event.agendaId());
 
         } catch (Exception e) {
             logger.error("Erro ao processar evento de voto registrado: {}", e.getMessage(), e);
             throw new IllegalStateException("Falha no processamento do evento de voto: " + event.voteId(), e);
         }
-    }
-
-    private void processVoteRegisteredEvent(VoteRegisteredEventDTO event) {
-        logger.info("Processando voto registrado: {} - {} votou {} na agenda {}", 
-                   event.voteId(), event.cpf(), event.vote(), event.agendaId());
-        
-        logger.info("Validando se voto {} existe no sistema", event.voteId());
-        
-        logger.info("Atualizando contadores de votos para agenda: {}", event.agendaId());
-        
-        logger.info("Verificando se votação da agenda {} deve ser encerrada", event.agendaId());
-        
-        logger.info("Enviando notificação de voto confirmado para CPF: {}", event.cpf());
-        
-        logger.info("Voto {} de valor {} registrado às {} para agenda {}", 
-                   event.voteId(), event.vote(), event.votedAt(), event.agendaId());
-        
-        logger.info("Executando auditoria do voto {} para compliance", event.voteId());
     }
 }

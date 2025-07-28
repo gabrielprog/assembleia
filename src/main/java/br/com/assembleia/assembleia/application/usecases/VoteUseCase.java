@@ -31,9 +31,9 @@ public class VoteUseCase {
         return voteGateway.existsByAgendaIdAndCpf(agendaId, cpf);
     }
 
-    public Vote registerVote(UUID agendaId, Agenda agenda, String cpf, VoteStatus vote) {
+    public Vote registerVote(Agenda agenda, String cpf, VoteStatus vote) {
 
-        if (agendaId == null || cpf == null || vote == null) {
+        if (agenda.getId() == null || cpf == null || vote == null) {
             throw new IllegalArgumentException("All fields must be filled.");
         }
 
@@ -41,7 +41,7 @@ public class VoteUseCase {
             throw new IllegalArgumentException("Invalid CPF provided");
         }
 
-        if (hasVoted(agendaId, cpf)) {
+        if (hasVoted(agenda.getId(), cpf)) {
             throw new IllegalStateException("Participant has already voted on this agenda.");
         }
         
@@ -51,7 +51,6 @@ public class VoteUseCase {
         }
         
         Vote newVote = new Vote(agenda, cpf, vote, LocalDateTime.now());
-        voteGateway.save(newVote);
         
         VoteRegisteredEventDTO event = VoteRegisteredEventDTO.from(
             newVote.getId(),
@@ -61,7 +60,7 @@ public class VoteUseCase {
             newVote.getDateTime()
         );
         eventProducer.publishVoteRegisteredEvent(event);
-        
+
         return newVote;
     }
 

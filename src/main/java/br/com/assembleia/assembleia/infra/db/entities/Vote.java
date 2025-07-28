@@ -29,6 +29,10 @@ public class Vote {
     @Column(name = "data_hora", nullable = false)
     private LocalDateTime dateTime;
 
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
+
     public Vote() {}
 
     public Vote(Agenda agenda, String cpf, VoteStatus vote, LocalDateTime dateTime) {
@@ -86,6 +90,14 @@ public class Vote {
         this.dateTime = dateTime;
     }
 
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
     public UUID id() {
         return id;
     }
@@ -127,6 +139,7 @@ public class Vote {
                 ", cpf='" + cpf + '\'' +
                 ", vote=" + vote +
                 ", dateTime=" + dateTime +
+                ", version=" + version +
                 '}';
     }
 }

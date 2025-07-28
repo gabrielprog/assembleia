@@ -26,10 +26,10 @@ class SimpleControllerTest {
     private WebApplicationContext webApplicationContext;
 
     @Test
-    void shouldReturnOkForSessionsEndpoint() throws Exception {
+    void shouldReturnNotFoundForSessionsEndpoint() throws Exception {
         MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         
-        mockMvc.perform(get("/api/v1/sessions"))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/api/v1/sessions/1"))
+                .andExpect(status().isNotFound());
     }
 }

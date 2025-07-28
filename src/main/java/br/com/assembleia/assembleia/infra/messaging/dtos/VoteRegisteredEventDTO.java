@@ -1,14 +1,13 @@
 package br.com.assembleia.assembleia.infra.messaging.dtos;
 
 import br.com.assembleia.assembleia.adapters.enums.VoteStatus;
+import br.com.assembleia.assembleia.infra.db.entities.Vote;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * DTO para evento de voto registrado
- */
 public record VoteRegisteredEventDTO(
     UUID voteId,
     UUID agendaId,

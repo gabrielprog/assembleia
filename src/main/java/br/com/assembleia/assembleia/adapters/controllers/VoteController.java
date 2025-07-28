@@ -76,8 +76,7 @@ public class VoteController {
             
             Agenda agenda = agendaOpt.get();
             
-            Vote registeredVote = voteUseCase.registerVote(
-                voteRequestDTO.agendaId(),
+            voteUseCase.registerVote(
                 agenda,
                 voteRequestDTO.cpf(),
                 voteRequestDTO.vote()
@@ -86,7 +85,6 @@ public class VoteController {
             logger.info("Vote registered successfully for CPF: {}", voteRequestDTO.cpf());
             return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .header("X-Vote-ID", registeredVote.getId().toString())
                 .body(ResponseDTO.of(HttpStatus.CREATED.value(), "Vote registered successfully"));
         } catch (IllegalArgumentException e) {
             logger.error("Validation error registering vote: {}", e.getMessage());

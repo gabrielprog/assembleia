@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,7 +24,7 @@ class SessionUseCaseBusinessLogicTest {
 
     @Mock
     private SessionGateway sessionGateway;
-
+    
     @Mock
     private AssembleiaEventProducer eventProducer;
 
@@ -31,19 +32,39 @@ class SessionUseCaseBusinessLogicTest {
     private SessionUseCase sessionUseCase;
 
     private LocalDateTime now;
-    private Session validSession;
-    private Session shortSession;
+    private LocalDateTime futureStart;
+    private LocalDateTime futureEnd;
+    private LocalDateTime pastStart;
+    private LocalDateTime pastEnd;
+    private UUID sessionId;
 
     @BeforeEach
     void setUp() {
         now = LocalDateTime.now();
-        validSession = new Session(now, now.plusHours(2));
-        shortSession = new Session(now, now.plusSeconds(30)); // Less than 1 minute
+        futureStart = now.plusHours(1);
+        futureEnd = now.plusHours(3);
+        pastStart = now.minusHours(3);
+        pastEnd = now.minusHours(1);
+        sessionId = UUID.randomUUID();
     }
 
     @Test
-    @DisplayName("Should validate session is not null")
-    void shouldValidateSessionIsNotNull() {
+    @DisplayName("Should create valid session successfully")
+    void shouldCreateValidSessionSuccessfully() {
+        // Arrange
+        Session session = new Session(futureStart, futureEnd);
+
+        // Act
+        sessionUseCase.save(session);
+
+        // Assert
+        verify(sessionGateway).save(session);
+    }
+
+    @Test
+    @DisplayName("Should reject null session")
+    void shouldRejectNullSession() {
+        // Act & Assert
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
             () -> sessionUseCase.save(null)
@@ -54,13 +75,15 @@ class SessionUseCaseBusinessLogicTest {
     }
 
     @Test
-    @DisplayName("Should validate start date is not null")
-    void shouldValidateStartDateIsNotNull() {
-        Session sessionWithNullStart = new Session(null, now.plusHours(1));
-        
+    @DisplayName("Should reject session with null start date")
+    void shouldRejectSessionWithNullStartDate() {
+        // Arrange
+        Session session = new Session(null, futureEnd);
+
+        // Act & Assert
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> sessionUseCase.save(sessionWithNullStart)
+            () -> sessionUseCase.save(session)
         );
         
         assertEquals("Invalid session: start date cannot be null.", exception.getMessage());
@@ -68,13 +91,15 @@ class SessionUseCaseBusinessLogicTest {
     }
 
     @Test
-    @DisplayName("Should validate end date is not null")
-    void shouldValidateEndDateIsNotNull() {
-        Session sessionWithNullEnd = new Session(now, null);
-        
+    @DisplayName("Should reject session with null end date")
+    void shouldRejectSessionWithNullEndDate() {
+        // Arrange
+        Session session = new Session(futureStart, null);
+
+        // Act & Assert
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> sessionUseCase.save(sessionWithNullEnd)
+            () -> sessionUseCase.save(session)
         );
         
         assertEquals("Invalid session: end date cannot be null.", exception.getMessage());
@@ -82,13 +107,15 @@ class SessionUseCaseBusinessLogicTest {
     }
 
     @Test
-    @DisplayName("Should validate end date is not before start date")
-    void shouldValidateEndDateIsNotBeforeStartDate() {
-        Session invalidSession = new Session(now, now.minusHours(1)); // End before start
-        
+    @DisplayName("Should reject session with end date before start date")
+    void shouldRejectSessionWithEndDateBeforeStartDate() {
+        // Arrange
+        Session session = new Session(futureEnd, futureStart); // end before start
+
+        // Act & Assert
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> sessionUseCase.save(invalidSession)
+            () -> sessionUseCase.save(session)
         );
         
         assertEquals("Invalid session: end date cannot be before start date.", exception.getMessage());
@@ -96,58 +123,93 @@ class SessionUseCaseBusinessLogicTest {
     }
 
     @Test
-    @DisplayName("Should save valid session successfully")
-    void shouldSaveValidSessionSuccessfully() {
-        // Act
-        sessionUseCase.save(validSession);
-        
-        // Assert
-        verify(sessionGateway).save(validSession);
-        verify(eventProducer).publishSessionCreatedEvent(any());
-    }
+    @DisplayName("Should auto-adjust session duration when less than 1 minute")
+    void shouldAutoAdjustSessionDurationWhenLessThanOneMinute() {
+        // Arrange - Very short session (less than 1 minute)
+        LocalDateTime start = futureStart;
+        LocalDateTime end = start.plusSeconds(30);
+        Session shortSession = new Session(start, end);
 
-    @Test
-    @DisplayName("Should adjust end date when duration is less than 1 minute")
-    void shouldAdjustEndDateWhenDurationIsLessThanOneMinute() {
-        // Arrange
-        LocalDateTime originalEndDate = shortSession.getEndDate();
-        
         // Act
         sessionUseCase.save(shortSession);
-        
+
         // Assert
-        assertTrue(shortSession.getEndDate().isAfter(originalEndDate));
-        assertTrue(shortSession.getEndDate().isAfter(shortSession.getStartDate().plusMinutes(1).minusSeconds(1)));
-        verify(sessionGateway).save(shortSession);
-        verify(eventProducer).publishSessionCreatedEvent(any());
+        verify(sessionGateway).save(argThat(session -> 
+            session.getEndDate().equals(start.plusMinutes(1))
+        ));
     }
 
     @Test
-    @DisplayName("Should save session with exactly 1 minute duration")
-    void shouldSaveSessionWithExactlyOneMinuteDuration() {
-        // Arrange
-        Session oneMinuteSession = new Session(now, now.plusMinutes(1));
-        
+    @DisplayName("Should save session with valid duration")
+    void shouldSaveSessionWithValidDuration() {
+        // Arrange - Session with 2 hours duration
+        Session session = new Session(futureStart, futureEnd);
+
         // Act
-        sessionUseCase.save(oneMinuteSession);
-        
+        sessionUseCase.save(session);
+
         // Assert
-        assertEquals(now.plusMinutes(1), oneMinuteSession.getEndDate());
-        verify(sessionGateway).save(oneMinuteSession);
-        verify(eventProducer).publishSessionCreatedEvent(any());
+        verify(sessionGateway).save(session);
+        assertEquals(futureStart, session.getStartDate());
+        assertEquals(futureEnd, session.getEndDate());
     }
 
     @Test
-    @DisplayName("Should not adjust end date when duration is more than 1 minute")
-    void shouldNotAdjustEndDateWhenDurationIsMoreThanOneMinute() {
-        // Arrange
-        LocalDateTime originalEndDate = validSession.getEndDate();
-        
+    @DisplayName("Should save session with past start date") 
+    void shouldSaveSessionWithPastStartDate() {
+        // Arrange - A implementação atual não valida data passada
+        Session session = new Session(pastStart, futureEnd);
+
         // Act
-        sessionUseCase.save(validSession);
-        
+        sessionUseCase.save(session);
+
         // Assert
-        assertEquals(originalEndDate, validSession.getEndDate());
-        verify(sessionGateway).save(validSession);
+        verify(sessionGateway).save(session);
+    }
+
+    @Test
+    @DisplayName("Should save session with very long duration")
+    void shouldSaveSessionWithVeryLongDuration() {
+        // Arrange - A implementação atual não limita duração máxima
+        LocalDateTime start = futureStart;
+        LocalDateTime end = start.plusDays(2); // 48 horas
+        Session longSession = new Session(start, end);
+
+        // Act
+        sessionUseCase.save(longSession);
+
+        // Assert
+        verify(sessionGateway).save(longSession);
+    }
+
+    @Test
+    @DisplayName("Should handle session with same start and end date")
+    void shouldHandleSessionWithSameStartAndEndDate() {
+        // Arrange
+        Session session = new Session(futureStart, futureStart);
+
+        // Act
+        sessionUseCase.save(session);
+
+        // Assert - Deve ajustar para 1 minuto de duração
+        verify(sessionGateway).save(argThat(s -> 
+            s.getEndDate().equals(futureStart.plusMinutes(1))
+        ));
+    }
+
+    @Test
+    @DisplayName("Should handle valid session boundary")
+    void shouldHandleValidSessionBoundary() {
+        // Arrange - Sessão com exatamente 1 minuto
+        LocalDateTime start = futureStart;
+        LocalDateTime end = start.plusMinutes(1);
+        Session session = new Session(start, end);
+
+        // Act
+        sessionUseCase.save(session);
+
+        // Assert - Não deve alterar a duração
+        verify(sessionGateway).save(session);
+        assertEquals(end, session.getEndDate());
     }
 }

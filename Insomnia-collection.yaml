@@ -1,0 +1,382 @@
+type: collection.insomnia.rest/5.0
+name: Assembleia
+meta:
+  id: wrk_94aa9ff4ffbd428fba241ffc4f748203
+  created: 1753406748536
+  modified: 1753406748536
+  description: ""
+collection:
+  - name: Agendas
+    meta:
+      id: fld_112b424ffe0b4ece8e20eda057ee0f16
+      created: 1706140800000
+      modified: 1753427834483
+      sortKey: -1706140700000
+      description: Agenda management endpoints
+    children:
+      - url: "{{ _.baseUrl }}/v1/agendas/{{ _.agendaId }}"
+        name: Get Agenda by ID
+        meta:
+          id: req_617e135826274a989df8baf83f65918b
+          created: 1706140800000
+          modified: 1706140800000
+          isPrivate: false
+          description: Retrieves an agenda by its ID
+          sortKey: -1706140700000
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/v1/agendas"
+        name: Create Agenda
+        meta:
+          id: req_e2e724483da4427a808ce8897386774e
+          created: 1706140800000
+          modified: 1753430613972
+          isPrivate: false
+          description: Creates a new agenda for a session
+          sortKey: -1706140800000
+        method: POST
+        body:
+          mimeType: application/json
+          text: >-
+            {
+            	"title": "Voting for new system",
+            	"description": "Discussion about implementing the new management system",
+            	"sessionId": "{% response 'header', 'req_c3559d09d45a45278fc8dfc22da7110f', 'b64::WC1TZXNzaW9uLUlE::46b', 'never', 60 %}"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    environment:
+      baseUrl: http://localhost:8080/api
+    environmentPropertyOrder:
+      "&":
+        - baseUrl
+  - name: Votes
+    meta:
+      id: fld_54e3329c839a47e39c4a43924442e501
+      created: 1706140800000
+      modified: 1753427836945
+      sortKey: -1706140600000
+      description: Vote management endpoints
+    children:
+      - url: "{{ _.baseUrl }}/v1/votes"
+        name: Register Vote NO
+        meta:
+          id: req_48a7ab08e921408b87426d33c631c68b
+          created: 1706140800000
+          modified: 1753659406734
+          isPrivate: false
+          description: Registers a NO vote for an agenda
+          sortKey: -1706140790000
+        method: POST
+        body:
+          mimeType: application/json
+          text: >-
+            {
+            	"agendaId": "{% response 'header', 'req_e2e724483da4427a808ce8897386774e', 'b64::WC1BZ2VuZGEtSUQ=::46b', 'never', 60 %}",
+            	"cpf": "98765432100",
+            	"vote": "NO"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/v1/votes/check/{% response 'header',
+          'req_e2e724483da4427a808ce8897386774e', 'b64::WC1BZ2VuZGEtSUQ=::46b',
+          'never', 60 %}/08194470560"
+        name: Check if CPF Voted
+        meta:
+          id: req_62a4b648c64d4dfb840bd3c6e78e1fce
+          created: 1706140800000
+          modified: 1753662814821
+          isPrivate: false
+          description: Checks if a CPF has already voted on an agenda
+          sortKey: -1706140700000
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/v1/votes"
+        name: Register Vote
+        meta:
+          id: req_eb8eef40dd1847848ef354d252797166
+          created: 1706140800000
+          modified: 1753663129320
+          isPrivate: false
+          description: Registers a vote for an agenda
+          sortKey: -1706140800000
+        method: POST
+        body:
+          mimeType: application/json
+          text: >-
+            {
+            	"agendaId": "{% response 'header', 'req_e2e724483da4427a808ce8897386774e', 'b64::WC1BZ2VuZGEtSUQ=::46b', 'never', 60 %}",
+            	"cpf": "46291405733",
+            	"vote": "YES"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/v1/votes/results/{% response 'header',
+          'req_e2e724483da4427a808ce8897386774e', 'b64::WC1BZ2VuZGEtSUQ=::46b',
+          'never', 60 %}"
+        name: Result Vote
+        meta:
+          id: req_4673a7cfa55545dab7068a1926cd45d0
+          created: 1753453389002
+          modified: 1753453692449
+          isPrivate: false
+          description: Registers a vote for an agenda
+          sortKey: -1706140795000
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    environment:
+      baseUrl: http://localhost:8080/api
+    environmentPropertyOrder:
+      "&":
+        - baseUrl
+  - name: Sessions
+    meta:
+      id: fld_6029c58a950546c7be53a22cf3280c9e
+      created: 1706140800000
+      modified: 1753427831189
+      sortKey: -1706140800000
+      description: Session management endpoints
+    children:
+      - url: "{{ _.baseUrl }}/v1/sessions/erwewrwerwe"
+        name: Get Session by ID
+        meta:
+          id: req_be45d3e6262a44aa97581c26f980b3ce
+          created: 1706140800000
+          modified: 1753664077910
+          isPrivate: false
+          description: Retrieves a session by its ID
+          sortKey: -1706140700000
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/v1/sessions"
+        name: Create Session
+        meta:
+          id: req_c3559d09d45a45278fc8dfc22da7110f
+          created: 1706140800000
+          modified: 1753453934546
+          isPrivate: false
+          description: Creates a new voting session
+          sortKey: -1706140800000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"startDate": "2025-07-25T12:00:00",
+            	"endDate": "2025-08-25T12:00:00"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    environment:
+      baseUrl: http://localhost:8080/api
+    environmentPropertyOrder:
+      "&":
+        - baseUrl
+  - name: Test Scenarios
+    meta:
+      id: fld_9a2f1be9f8e4466fac71ed99e6de6669
+      created: 1706140800000
+      modified: 1753427845204
+      sortKey: -1706140400000
+      description: Specific test scenarios for error conditions
+    children:
+      - url: "{{ _.baseUrl }}/v1/sessions"
+        name: Create Session (Already Ended)
+        meta:
+          id: req_11965db19fc34d7695a4288527c661af
+          created: 1706140800000
+          modified: 1706140800000
+          isPrivate: false
+          description: Creates a session that has already ended to test voting restrictions
+          sortKey: -1706140800000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"startDate": "2025-01-20T10:00:00",
+            	"endDate": "2025-01-20T12:00:00"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/v1/votes"
+        name: Test Duplicate Vote (Should Fail)
+        meta:
+          id: req_700bf9601a334178a8fce07f698bbedd
+          created: 1706140800000
+          modified: 1706140800000
+          isPrivate: false
+          description: Attempts to register the same vote twice to test duplicate prevention
+          sortKey: -1706140780000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"agendaId": "{{ _.agendaId }}",
+            	"cpf": "12345678900",
+            	"vote": "YES"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/v1/sessions"
+        name: Create Session (Future)
+        meta:
+          id: req_7e0f0321a71f4481b79b8ac859325152
+          created: 1706140800000
+          modified: 1706140800000
+          isPrivate: false
+          description: Creates a session that hasn't started yet to test voting restrictions
+          sortKey: -1706140790000
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"startDate": "2025-12-25T10:00:00",
+            	"endDate": "2025-12-25T12:00:00"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    environment:
+      baseUrl: http://localhost:8080/api
+    environmentPropertyOrder:
+      "&":
+        - baseUrl
+  - name: Miscellaneous
+    meta:
+      id: fld_9d05f9eb9e0045a0939a4cafa9b4430e
+      created: 1706140800000
+      modified: 1753427842308
+      sortKey: -1706140500000
+      description: General endpoints
+    children:
+      - url: "{{ _.baseUrl }}/"
+        name: Hello World
+        meta:
+          id: req_8c9ce540d1904ee0906768be4f4eac71
+          created: 1706140800000
+          modified: 1706140800000
+          isPrivate: false
+          description: Simple health check endpoint
+          sortKey: -1706140800000
+        method: GET
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    environment:
+      baseUrl: http://localhost:8080/api
+    environmentPropertyOrder:
+      "&":
+        - baseUrl
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_1bfa7c53c0f1d5519dab10859dd81bf60fa4ec1a
+    created: 1753406748592
+    modified: 1753406748592
+environments:
+  name: Base Environment
+  meta:
+    id: env_1bfa7c53c0f1d5519dab10859dd81bf60fa4ec1a
+    created: 1753406748548
+    modified: 1753427727312
+    isPrivate: false
+  data:
+    baseurl: http://localhost:8080/api

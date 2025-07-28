@@ -1,16 +1,8 @@
 package br.com.assembleia.assembleia.application.utils;
 
-/**
- * Utilitário para validação de CPF
- */
 public class CpfValidator {
     
-    /**
-     * Valida se um CPF é válido segundo as regras brasileiras
-     * 
-     * @param cpf CPF a ser validado (pode conter ou não formatação)
-     * @return true se o CPF for válido, false caso contrário
-     */
+
     public static boolean isValid(String cpf) {
         if (cpf == null) {
             return false;
